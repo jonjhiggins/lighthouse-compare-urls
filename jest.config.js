@@ -1,0 +1,3 @@
+{
+    watchPathIgnorePatterns: ["<rootDir>/results.json"]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "lighthouse-automated-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "demo": "node index.js --urls \"https://google.com.au,https://google.com\"",
+    "start": "node index.js",
+    "test": "jest",
+    "test:watch": "jest --watchAll"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chalk": "^2.4.2",
+    "eslint": "^5.12.1",
+    "eslint-config-prettier": "^3.6.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "jest": "^23.6.0",
+    "minimalist": "^1.0.0",
+    "prettier": "^1.16.1"
+  },
+  "dependencies": {
+    "lighthouse": "^4.0.0"
+  }
+}
