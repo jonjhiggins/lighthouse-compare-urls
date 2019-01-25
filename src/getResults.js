@@ -3,55 +3,64 @@ const chromeLauncher = require('chrome-launcher')
 const errorMessages = require('./errorMessages')
 const fs = require('fs')
 
-const opts = {
-    chromeFlags: ['--show-paint-rects'],
-    onlyCategories: ['performance'],
-    output: 'html',
-}
-
-const config = null
-
-module.exports = ({ url }) => {
-    if (!url) {
-        throw new Error(errorMessages.getResults.noURL)
-    }
-
-    let chromeInstance = null
-    let lightHouseInstance = null
-    const results = {}
-
-    const initChromeInstance = async () => {
-        chromeInstance = await chromeLauncher.launch({
-            chromeFlags: opts.chromeFlags,
-        })
-        opts.port = chromeInstance.port
-        return chromeInstance
-    }
-
-    const killChromeInstance = () => {
-        chromeInstance.kill()
-    }
-
-    const getChromeInstance = async () =>
-        chromeInstance || (await initChromeInstance())
-
-    const getLightHouseInstance = async () =>
-        lightHouseInstance || (await initLighthouse())
-
-    const initLighthouse = async () => {
-        if (!chromeInstance) {
-            await getChromeInstance()
+module.exports = class GetResults {
+    constructor({ url }) {
+        if (!url) {
+            throw new Error(errorMessages.getResults.noURL)
         }
 
-        const lighthouseResults = await lighthouse(url, opts, config)
-        const storedResults = storeResults(lighthouseResults.lhr)
-        await writeFile(storedResults)
-        lightHouseInstance = lighthouseResults
+        this.opts = {
+            chromeFlags: ['--show-paint-rects'],
+            onlyCategories: ['performance'],
+            output: 'html',
+        }
+
+        this.config = null
+
+        this.results = {}
+        this.chromeInstance = null
+        this.lightHouseInstance = null
+        this.url = url
+    }
+
+    async initChromeInstance() {
+        this.chromeInstance = await chromeLauncher.launch({
+            chromeFlags: this.opts.chromeFlags,
+        })
+        this.opts.port = this.chromeInstance.port
+        return this.chromeInstance
+    }
+
+    killChromeInstance() {
+        this.chromeInstance.kill()
+    }
+
+    async getChromeInstance() {
+        return this.chromeInstance || (await this.initChromeInstance())
+    }
+
+    async getLightHouseInstance() {
+        return this.lightHouseInstance || (await this.initLighthouse())
+    }
+
+    async initLighthouse() {
+        if (!this.chromeInstance) {
+            await this.getChromeInstance()
+        }
+
+        const lighthouseResults = await lighthouse(
+            this.url,
+            this.opts,
+            this.config
+        )
+        const storedResults = this.storeResults(lighthouseResults.lhr)
+        await this.writeFile(storedResults)
+        this.lightHouseInstance = lighthouseResults
         return lighthouseResults
     }
 
-    const storeResults = (lighthouseResults) => {
-        results.tests = {
+    storeResults(lighthouseResults) {
+        this.results.tests = {
             performanceScore: lighthouseResults.categories.performance.score,
             firstContentfulPaint:
                 lighthouseResults.audits['first-contentful-paint'].score,
@@ -61,28 +70,20 @@ module.exports = ({ url }) => {
             totalByteWeight:
                 lighthouseResults.audits['total-byte-weight'].score,
         }
-        results.info = {
+        this.results.info = {
             url: lighthouseResults.requestedUrl,
         }
-        return results;
+        return this.results
     }
 
-    const writeFile = async (results) => {
-        return new Promise((resolve, reject) => { 
-            fs.writeFile('results.json', JSON.stringify(results), (err) => {
+    async writeFile(results) {
+        return new Promise((resolve, reject) => {
+            fs.writeFile('data/results.json', JSON.stringify(results), err => {
                 if (err) {
-                    return reject(err);
+                    return reject(err)
                 }
                 return resolve()
             })
         })
-    }
-
-    return {
-        getChromeInstance,
-        getLightHouseInstance,
-        killChromeInstance,
-        storeResults,
-        results,
     }
 }

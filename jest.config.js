@@ -1,3 +1,3 @@
-{
-    watchPathIgnorePatterns: ["<rootDir>/results.json"]
+module.exports = {
+    watchPathIgnorePatterns: ['data'],
 }

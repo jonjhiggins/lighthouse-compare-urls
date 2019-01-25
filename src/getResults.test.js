@@ -1,4 +1,4 @@
-const getResults = require('./getResults')
+const GetResults = require('./getResults')
 const errorMessages = require('./errorMessages')
 const fs = require('fs')
 
@@ -7,7 +7,7 @@ const url = 'https://google.com.au/'
 describe('I can get metrics from Lighthouse (sync tests)', () => {
     test('Shows error if no URL supplied', () => {
         try {
-            const resultsInstance = getResults({})
+            const resultsInstance = new GetResults({})
             expect(true).toBe(false) // force test fail if no error thrown
         } catch (e) {
             expect(e.message).toBe(errorMessages.getResults.noURL)
@@ -15,7 +15,7 @@ describe('I can get metrics from Lighthouse (sync tests)', () => {
     })
 
     test('Store results in correct format', () => {
-        const resultsInstance = getResults({
+        const resultsInstance = new GetResults({
             url,
         })
         const lighthouseResults = {
@@ -56,7 +56,7 @@ describe('I can get metrics from Lighthouse (async tests)', async () => {
     let resultsInstance = null
 
     beforeAll(() => {
-        resultsInstance = getResults({
+        resultsInstance = new GetResults({
             url: 'https://google.com.au',
         })
     })
@@ -88,7 +88,7 @@ describe('I can get metrics from Lighthouse (async tests)', async () => {
 
     test('File is written to disk', async () => {
         const resultsFile = new Promise((resolve, reject) => {
-            fs.readFile('results.json', 'utf8', (err, data) => {
+            fs.readFile('data/results.json', 'utf8', (err, data) => {
                 if (err) {
                     return reject(err)
                 }
