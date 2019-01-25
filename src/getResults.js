@@ -3,7 +3,14 @@ const chromeLauncher = require('chrome-launcher')
 const errorMessages = require('./errorMessages')
 const fs = require('fs')
 
+/**
+ * Perform Lighthouse test on a URL
+ */
 module.exports = class GetResults {
+    /**
+     * @param {object}
+     * @prop {string} url url to test via Lighthouse
+     */
     constructor({ url }) {
         if (!url) {
             throw new Error(errorMessages.getResults.noURL)
@@ -23,6 +30,10 @@ module.exports = class GetResults {
         this.url = url
     }
 
+    /**
+     * Open a Chrome browser instance for Lighthouse to use
+     * @returns {Promise}
+     */
     async initChromeInstance() {
         this.chromeInstance = await chromeLauncher.launch({
             chromeFlags: this.opts.chromeFlags,
@@ -31,18 +42,33 @@ module.exports = class GetResults {
         return this.chromeInstance
     }
 
+    /**
+     * Close the Chrome browser instance 
+     */
     killChromeInstance() {
         this.chromeInstance.kill()
     }
 
+    /**
+     * Return either active Chrome browser instance or create one
+     * @returns {Promise|object}
+     */
     async getChromeInstance() {
         return this.chromeInstance || (await this.initChromeInstance())
     }
 
+    /**
+     * Return either active Lighthouse instance or create one
+     * @returns {Promise|object}
+     */
     async getLightHouseInstance() {
         return this.lightHouseInstance || (await this.initLighthouse())
     }
 
+    /**
+     * Start a Lighthouse instance for a specific URL
+     * @return {Promise|object}
+     */
     async initLighthouse() {
         if (!this.chromeInstance) {
             await this.getChromeInstance()
@@ -59,6 +85,10 @@ module.exports = class GetResults {
         return lighthouseResults
     }
 
+    /**
+     * Store results from Lighthouse in specific format
+     * @param {object} lighthouseResults 
+     */
     storeResults(lighthouseResults) {
         this.results.tests = {
             performanceScore: lighthouseResults.categories.performance.score,
@@ -76,6 +106,10 @@ module.exports = class GetResults {
         return this.results
     }
 
+    /**
+     * Write results to a JSON file
+     * @param {object} results 
+     */
     async writeFile(results) {
         return new Promise((resolve, reject) => {
             fs.writeFile('data/results.json', JSON.stringify(results), err => {
