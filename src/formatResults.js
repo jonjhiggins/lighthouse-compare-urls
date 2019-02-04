@@ -26,22 +26,25 @@ module.exports = class FormatResults {
    */
   getCLITable() {
     const tableData = FormatResults.formatDataForTable(
-      this.results[0].tests,
-      this.results[1].tests
+      this.results[0],
+      this.results[1]
     )
     return FormatResults.createTables(tableData)
   }
 
   /**
    * Format the performance results into array for use in cli-table
-   * @param {object[]} tests
+   * @param {object} results1
+   * @param {object} results2
    * @returns {object[]}
    */
-  static formatDataForTable(tests1, tests2) {
-    return Object.keys(tests1).map(testKey => {
+  static formatDataForTable(results1, results2) {
+    const headings = ['', results1.info.url, results2.info.url]
+    const tableData = Object.keys(results1.tests).map(testKey => {
       const label = fields.find(field => field.value === testKey).label
-      return [label, tests1[testKey], tests2[testKey]]
+      return [label, results1.tests[testKey], results2.tests[testKey]]
     })
+    return [headings, ...tableData]
   }
 
   /**

@@ -22,11 +22,13 @@ const results = [
       firstCPUIdle: 0.79,
       totalByteWeight: 1
     },
-    info: { url: 'https://google.com.au/' }
+    info: { url: 'https://google.com/' }
   }
 ]
 
 const tableLabels = [
+  results[0].info.url,
+  results[1].info.url,
   'First Contentful Paint',
   'First Meaningful Paint',
   'First CPU Idle',
@@ -48,23 +50,27 @@ describe('I can get results formatted', () => {
 
   test('formats results object', () => {
     const formattedResultsObj = FormatResults.formatDataForTable(
-      results[0].tests,
-      results[1].tests
+      results[0],
+      results[1]
     )
-    expect(formattedResultsObj[0][0]).toMatch('Performance Score')
-    expect(formattedResultsObj[0][1]).toBe(results[0].tests.performanceScore)
-    expect(formattedResultsObj[0][2]).toBe(results[1].tests.performanceScore)
+    expect(formattedResultsObj[0][0]).toMatch('')
+    expect(formattedResultsObj[0][1]).toBe(results[0].info.url)
+    expect(formattedResultsObj[0][2]).toBe(results[1].info.url)
+    expect(formattedResultsObj[1][0]).toMatch('Performance Score')
+    expect(formattedResultsObj[1][1]).toBe(results[0].tests.performanceScore)
+    expect(formattedResultsObj[1][2]).toBe(results[1].tests.performanceScore)
   })
 
   test('creates a CLI table from formatted object', () => {
-    const results = [
+    const resultsObj = [
+      ['', results[0].info.url, results[1].info.url],
       ['Performance Score', 0.5, 0.86],
       ['First Contentful Paint', 1.5, 0.9],
       ['First Meaningful Paint', 1.5, 0.9],
       ['First CPU Idle', 2, 0.79],
       ['Total Byte Weight', 5, 1]
     ]
-    const table = FormatResults.createTables(results)
+    const table = FormatResults.createTables(resultsObj)
 
     tableLabels.forEach(label => {
       expect(table).toEqual(expect.stringContaining(label))
