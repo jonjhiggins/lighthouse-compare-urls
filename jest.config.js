@@ -1,3 +1,3 @@
 module.exports = {
-    watchPathIgnorePatterns: ['data'],
+  watchPathIgnorePatterns: ['data']
 }
