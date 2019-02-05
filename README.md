@@ -1,4 +1,4 @@
-# lighthouse-automated-tests
+# lighthouse-compare-urls
 
 Compare two URLs via Google's [Lighthouse](https://github.com/GoogleChrome/lighthouse) to check for performance differences.
 
