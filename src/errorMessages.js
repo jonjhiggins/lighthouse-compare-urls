@@ -13,5 +13,8 @@ module.exports = {
     noResults: chalk.red(
       'Two sets of results must be supplied to FormatResults'
     )
+  },
+  exportResults: {
+    missingFile: chalk.red('Missing filename or contents')
   }
 }

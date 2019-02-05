@@ -55,7 +55,7 @@ describe('I can get metrics from Lighthouse (sync tests)', () => {
   })
 })
 
-xdescribe('I can get metrics from Lighthouse (async tests)', async () => {
+describe('I can get metrics from Lighthouse (async tests)', async () => {
   let resultsInstance = null
 
   beforeAll(() => {

@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const outputDir = 'results'
+const errorMessages = require('./errorMessages')
 
 /**
  * Write XLS string to file
@@ -28,6 +29,10 @@ const exportJSON = (fileName, contents) => {
  */
 const writeFile = async (fileName, contents, options) => {
   return new Promise((resolve, reject) => {
+    if (!fileName || !contents) {
+      return reject(new Error(errorMessages.exportResults.missingFile))
+    }
+
     fs.writeFile(
       path.resolve(`${outputDir}/${fileName}`),
       contents,
@@ -36,6 +41,7 @@ const writeFile = async (fileName, contents, options) => {
         if (err) {
           return reject(err)
         }
+
         return resolve()
       }
     )
@@ -44,5 +50,6 @@ const writeFile = async (fileName, contents, options) => {
 
 module.exports = {
   exportXLSX,
-  exportJSON
+  exportJSON,
+  writeFile
 }

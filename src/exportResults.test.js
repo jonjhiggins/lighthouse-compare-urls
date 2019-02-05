@@ -1,5 +1,6 @@
-const { exportJSON, exportXLSX } = require('./exportResults')
+const { exportJSON, exportXLSX, writeFile } = require('./exportResults')
 const fs = require('fs')
+const errorMessages = require('./errorMessages')
 
 /* globals test, expect, describe */
 
@@ -40,5 +41,21 @@ describe('I can export results', async () => {
     const results = await resultsFile
     expect(results).toEqual(expect.stringMatching(testString))
     fs.unlink(filePath)
+  })
+
+  test('Failed writeFile throw error', async () => {
+    try {
+      await writeFile(null, '')
+      expect(true).toBe(false) // force test fail if no error thrown
+    } catch (e) {
+      expect(e.message).toMatch(errorMessages.exportResults.missingFile)
+    }
+
+    try {
+      await writeFile('//', '😀')
+      expect(true).toBe(false) // force test fail if no error thrown
+    } catch (e) {
+      expect(e.message).toBeDefined()
+    }
   })
 })
