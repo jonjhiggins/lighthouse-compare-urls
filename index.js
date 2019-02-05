@@ -23,7 +23,7 @@ const init = async () => {
   // Format results into CLI table + XLSX string
   const formatResultsInstance = new FormatResults(results)
   console.log(formatResultsInstance.getCLITable())
-  const excelString = formatResultsInstance.getExcelString()
+  const excelString = formatResultsInstance.getExcelBuffer()
   // Export files
   await exportXLSX('test.xlsx', excelString)
   process.exit()

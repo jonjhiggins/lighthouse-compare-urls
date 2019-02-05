@@ -1,13 +1,22 @@
 const errorMessages = require('./errorMessages')
 const Table = require('cli-table')
-const json2xls = require('json2xls')
+const excel = require('node-excel-export')
+
+const styles = {
+  headerDark: {
+    font: {
+      bold: true
+    }
+  }
+}
 
 const fields = [
+  { label: 'URL', value: 'url', width: 200 },
+  { label: 'Performance Score', value: 'performanceScore' },
   { label: 'First Contentful Paint', value: 'firstContentfulPaint' },
   { label: 'First Meaningful Paint', value: 'firstMeaningfulPaint' },
   { label: 'First CPU Idle', value: 'firstCPUIdle' },
-  { label: 'Total Byte Weight', value: 'totalByteWeight' },
-  { label: 'Performance Score', value: 'performanceScore' }
+  { label: 'Total Byte Weight', value: 'totalByteWeight' }
 ]
 
 module.exports = class FormatResults {
@@ -48,19 +57,34 @@ module.exports = class FormatResults {
 
   /**
    * Format the performance results into array for use in json2xls
-   * @param {object} results1
+   * @param {object[]} results
    * @param {object} results2
    * @returns {object[]}
    */
-  static formatDataForXLSX(results1, results2) {
-    return Object.keys(results1.tests).map(testKey => {
-      const metric = fields.find(field => field.value === testKey).label
-      return {
-        metric,
-        url1: results1.tests[testKey],
-        url2: results2.tests[testKey]
+  static formatDataForXLSX(results) {
+    return results.map(({ info: { url }, tests }) => ({
+      url,
+      ...tests
+    }))
+  }
+
+  /**
+   * Build a specifications object for node-excel-export
+   * which tells it how to format columns in Excel
+   * @param {object[]} results
+   * @returns {object}
+   */
+  static getSpecificationForXLSX() {
+    const obj = {}
+    Object.keys(fields).forEach(fieldKey => {
+      const field = fields[fieldKey]
+      obj[field.value] = {
+        displayName: field.label, // <- Here you specify the column header
+        width: field.width || 120,
+        headerStyle: styles.headerDark
       }
     })
+    return obj
   }
 
   /**
@@ -75,13 +99,20 @@ module.exports = class FormatResults {
   }
 
   /**
-   * Return results as an Excel XLSX format string
+   * Return results as an Excel XLSX format buffer
+   * @returns {Buffer}
    */
-  getExcelString() {
-    const tableData = FormatResults.formatDataForXLSX(
-      this.results[0],
-      this.results[1]
-    )
-    return json2xls(tableData)
+  getExcelBuffer() {
+    const dataset = FormatResults.formatDataForXLSX(this.results)
+    const specification = FormatResults.getSpecificationForXLSX()
+
+    const report = excel.buildExport([
+      {
+        specification: specification,
+        data: dataset
+      }
+    ])
+
+    return report
   }
 }

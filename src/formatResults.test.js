@@ -62,13 +62,21 @@ describe('I can get results formatted', () => {
   })
 
   test('formats results object for XLSX export', () => {
-    const formattedResultsObj = FormatResults.formatDataForXLSX(
-      results[0],
-      results[1]
+    const formattedResultsObj = FormatResults.formatDataForXLSX(results)
+    expect(formattedResultsObj[0].url).toMatch(results[0].info.url)
+    expect(formattedResultsObj[1].url).toMatch(results[1].info.url)
+    Object.keys(results[0].tests).forEach(testKey => {
+      expect(formattedResultsObj[0][testKey]).toBe(results[0].tests[testKey])
+      expect(formattedResultsObj[1][testKey]).toBe(results[1].tests[testKey])
+    })
+  })
+
+  test('formats object specification for XLSX export', () => {
+    const specification = FormatResults.getSpecificationForXLSX(results)
+    expect(specification.url.displayName).toMatch('URL')
+    expect(specification.performanceScore.displayName).toMatch(
+      'Performance Score'
     )
-    expect(formattedResultsObj[0].metric).toMatch('Performance Score')
-    expect(formattedResultsObj[0].url1).toBe(results[0].tests.performanceScore)
-    expect(formattedResultsObj[0].url2).toBe(results[1].tests.performanceScore)
   })
 
   test('creates a CLI table from formatted object', () => {
@@ -97,7 +105,7 @@ describe('I can get results formatted', () => {
 
   test('returns XLS string', () => {
     const formatResultsInstance = new FormatResults(results)
-    const xls = formatResultsInstance.getExcelString()
-    expect(xls).toEqual(expect.stringContaining('workbook.xml'))
+    const xls = formatResultsInstance.getExcelBuffer()
+    expect(xls.toString()).toEqual(expect.stringContaining('workbook.xml'))
   })
 })
