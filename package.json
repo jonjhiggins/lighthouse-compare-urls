@@ -7,12 +7,15 @@
     "demo": "node index.js --urls \"https://google.com.au,https://google.com\"",
     "start": "node index.js",
     "test": "jest",
+    "test:ci": "jest --coverage && codecov",
+    "test:coverage": "jest --coverage",
     "test:watch": "jest --watchAll"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "chalk": "^2.4.2",
+    "codecov": "^3.1.0",
     "eslint": "^5.13.0",
     "eslint-config-prettier": "^3.6.0",
     "eslint-config-prettier-standard": "^2.0.0",
