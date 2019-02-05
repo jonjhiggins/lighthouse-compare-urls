@@ -48,8 +48,8 @@ describe('I can get results formatted', () => {
     }
   })
 
-  test('formats results object', () => {
-    const formattedResultsObj = FormatResults.formatDataForTable(
+  test('formats results object for CLI Table', () => {
+    const formattedResultsObj = FormatResults.formatDataForCLITable(
       results[0],
       results[1]
     )
@@ -59,6 +59,16 @@ describe('I can get results formatted', () => {
     expect(formattedResultsObj[1][0]).toMatch('Performance Score')
     expect(formattedResultsObj[1][1]).toBe(results[0].tests.performanceScore)
     expect(formattedResultsObj[1][2]).toBe(results[1].tests.performanceScore)
+  })
+
+  test('formats results object for XLSX export', () => {
+    const formattedResultsObj = FormatResults.formatDataForXLSX(
+      results[0],
+      results[1]
+    )
+    expect(formattedResultsObj[0].metric).toMatch('Performance Score')
+    expect(formattedResultsObj[0].url1).toBe(results[0].tests.performanceScore)
+    expect(formattedResultsObj[0].url2).toBe(results[1].tests.performanceScore)
   })
 
   test('creates a CLI table from formatted object', () => {
@@ -83,5 +93,11 @@ describe('I can get results formatted', () => {
     tableLabels.forEach(label => {
       expect(table).toEqual(expect.stringContaining(label))
     })
+  })
+
+  test('returns XLS string', () => {
+    const formatResultsInstance = new FormatResults(results)
+    const xls = formatResultsInstance.getExcelString()
+    expect(xls).toEqual(expect.stringContaining('workbook.xml'))
   })
 })

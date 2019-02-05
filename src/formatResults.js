@@ -1,7 +1,6 @@
 const errorMessages = require('./errorMessages')
-// const Json2csvParser = require('json2csv').Parser
 const Table = require('cli-table')
-// const chalk = require('chalk')
+const json2xls = require('json2xls')
 
 const fields = [
   { label: 'First Contentful Paint', value: 'firstContentfulPaint' },
@@ -25,7 +24,7 @@ module.exports = class FormatResults {
    * @returns {string}
    */
   getCLITable() {
-    const tableData = FormatResults.formatDataForTable(
+    const tableData = FormatResults.formatDataForCLITable(
       this.results[0],
       this.results[1]
     )
@@ -38,13 +37,30 @@ module.exports = class FormatResults {
    * @param {object} results2
    * @returns {object[]}
    */
-  static formatDataForTable(results1, results2) {
+  static formatDataForCLITable(results1, results2) {
     const headings = ['', results1.info.url, results2.info.url]
     const tableData = Object.keys(results1.tests).map(testKey => {
       const label = fields.find(field => field.value === testKey).label
       return [label, results1.tests[testKey], results2.tests[testKey]]
     })
     return [headings, ...tableData]
+  }
+
+  /**
+   * Format the performance results into array for use in json2xls
+   * @param {object} results1
+   * @param {object} results2
+   * @returns {object[]}
+   */
+  static formatDataForXLSX(results1, results2) {
+    return Object.keys(results1.tests).map(testKey => {
+      const metric = fields.find(field => field.value === testKey).label
+      return {
+        metric,
+        url1: results1.tests[testKey],
+        url2: results2.tests[testKey]
+      }
+    })
   }
 
   /**
@@ -58,9 +74,14 @@ module.exports = class FormatResults {
     return table.toString()
   }
 
-  // createCSV() {
-  //   const opts = { fields }
-  //   const parser = new Json2csvParser(opts)
-  //   return parser.parse(resultsObj.tests)
-  // }
+  /**
+   * Return results as an Excel XLSX format string
+   */
+  getExcelString() {
+    const tableData = FormatResults.formatDataForXLSX(
+      this.results[0],
+      this.results[1]
+    )
+    return json2xls(tableData)
+  }
 }

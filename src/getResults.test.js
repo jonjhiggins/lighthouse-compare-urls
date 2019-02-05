@@ -55,7 +55,7 @@ describe('I can get metrics from Lighthouse (sync tests)', () => {
   })
 })
 
-describe('I can get metrics from Lighthouse (async tests)', async () => {
+xdescribe('I can get metrics from Lighthouse (async tests)', async () => {
   let resultsInstance = null
 
   beforeAll(() => {
@@ -87,19 +87,5 @@ describe('I can get metrics from Lighthouse (async tests)', async () => {
 
   xtest('Chrome returns page title', () => {
     expect(resultsInstance.results.info.pageTitle).toBe('title')
-  })
-
-  test('File is written to disk', async () => {
-    const resultsFile = new Promise((resolve, reject) => {
-      fs.readFile('data/results.json', 'utf8', (err, data) => {
-        if (err) {
-          return reject(err)
-        }
-        return resolve(data)
-      })
-    })
-    const results = JSON.parse(await resultsFile)
-    expect(resultsFile).toBeDefined()
-    expect(results.info.url).toBe(url)
   })
 })

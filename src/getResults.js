@@ -77,8 +77,7 @@ module.exports = class GetResults {
     }
 
     const lighthouseResults = await lighthouse(this.url, this.opts, this.config)
-    const storedResults = this.storeResults(lighthouseResults.lhr)
-    await this.writeFile(storedResults)
+    this.storeResults(lighthouseResults.lhr)
     this.lightHouseInstance = lighthouseResults
     return lighthouseResults
   }
@@ -108,20 +107,5 @@ module.exports = class GetResults {
    */
   getResults() {
     return this.results
-  }
-
-  /**
-   * Write results to a JSON file
-   * @param {object} results
-   */
-  async writeFile(results) {
-    return new Promise((resolve, reject) => {
-      fs.writeFile('data/results.json', JSON.stringify(results), err => {
-        if (err) {
-          return reject(err)
-        }
-        return resolve()
-      })
-    })
   }
 }

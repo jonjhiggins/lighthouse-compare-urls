@@ -2,6 +2,7 @@ const argv = require('minimist')(process.argv.slice(2))
 const Input = require('./src/input')
 const GetResults = require('./src/getResults')
 const FormatResults = require('./src/formatResults')
+const { exportJSON, exportXLSX } = require('./src/exportResults')
 
 const handleError = error => {
   console.log(error)
@@ -19,9 +20,12 @@ const init = async () => {
     await getResultsInstance.getLightHouseInstance()
     results.push(getResultsInstance.getResults())
   }
-  // Format results into CLI table
+  // Format results into CLI table + XLSX string
   const formatResultsInstance = new FormatResults(results)
   console.log(formatResultsInstance.getCLITable())
+  const excelString = formatResultsInstance.getExcelString()
+  // Export files
+  await exportXLSX('test.xlsx', excelString)
   process.exit()
 }
 
