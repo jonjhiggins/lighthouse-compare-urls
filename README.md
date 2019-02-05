@@ -1,6 +1,6 @@
 # lighthouse-compare-urls
 
-[![CircleCI](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master.svg?style=shield)](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master)
+[![CircleCI](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master.svg?style=shield)](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master) [![Codecov badge](https://codecov.io/gh/jonjhiggins/lighthouse-compare-urls/branch/master/graphs/badge.svg)](https://codecov.io/gh/jonjhiggins/lighthouse-compare-urls)
 
 Compare two URLs via Google's [Lighthouse](https://github.com/GoogleChrome/lighthouse) to check for performance differences.
 
