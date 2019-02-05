@@ -1,5 +1,7 @@
 # lighthouse-compare-urls
 
+[![CircleCI](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master.svg?style=shield)](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master)
+
 Compare two URLs via Google's [Lighthouse](https://github.com/GoogleChrome/lighthouse) to check for performance differences.
 
 Useful for comparing an staging URL with changes against a current live site to see the performance impact of changes.
