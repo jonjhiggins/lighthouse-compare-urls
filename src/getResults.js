@@ -85,24 +85,60 @@ module.exports = class GetResults {
     const lighthouseResultsList = []
 
     for (let i = 0; i < numberOfTests; i += 1) {
-      GetResults.logTestStart(this.url, i, numberOfTests)
-      const lightHouseInstance = await lighthouse(
-        this.url,
-        this.opts,
-        this.config
-      )
+      const lightHouseInstance = await this.runLighthouseTest({
+        url: this.url,
+        opts: this.opts,
+        config: this.config,
+        index: i,
+        numberOfTests
+      })
       lighthouseResultsList.push(lightHouseInstance)
-      GetResults.logTestEnd(
-        this.url,
-        i,
-        numberOfTests,
-        lightHouseInstance.lhr.categories.performance.score
-      )
     }
 
     this.storeResults(lighthouseResultsList.map(item => item.lhr))
     this.lightHouseInstance = lighthouseResultsList
     return lighthouseResultsList
+  }
+
+  async runLighthouseTest({ url, opts, config, index, numberOfTests }) {
+    GetResults.logTestStart(url, index, numberOfTests)
+    let lightHouseInstance = null
+    // Repeat test if Lighthouse returns null
+    // @TODO add test for this
+    let failCounter = 0
+    const failCounterLimit = 3
+    while (
+      !lightHouseInstance ||
+      !lightHouseInstance.lhr ||
+      !lightHouseInstance.lhr.categories.performance.score
+    ) {
+      failCounter += 1
+      if (failCounter > failCounterLimit) {
+        GetResults.logAllTestsFailed(url)
+        this.killChromeInstance()
+        process.exit()
+      }
+      if (failCounter > 1) {
+        GetResults.logTestFailed(url)
+      }
+      lightHouseInstance = await GetResults.doLighthouseTest({
+        url,
+        opts,
+        config
+      })
+    }
+    GetResults.logTestEnd(
+      url,
+      index,
+      numberOfTests,
+      lightHouseInstance.lhr.categories.performance.score
+    )
+    return lightHouseInstance
+  }
+
+  static async doLighthouseTest({ url, opts, config }) {
+    const lighthouseInstace = await lighthouse(url, opts, config)
+    return lighthouseInstace
   }
 
   /**
@@ -174,6 +210,18 @@ module.exports = class GetResults {
     process.stdout.write(
       `${chalk.blue('Testing')} ${url} ${index + 1} of ${testCount}`
     )
+  }
+
+  /**
+   * Log out test start info
+   * @param {string} url
+   */
+  static logTestFailed(url) {
+    process.stdout.write(`\n${chalk.blue('Test failed - retrying')} ${url}`)
+  }
+
+  static logAllTestsFailed(url) {
+    process.stdout.write(`\n${chalk.red(`Testing ${url} failed`)}\n`)
   }
 
   /**

@@ -145,6 +145,28 @@ describe('I can get metrics from Lighthouse (sync tests)', () => {
       )
     )
   })
+
+  test('Logs out logTestFailed', () => {
+    let outputData = ''
+    const storeLog = inputs => (outputData += inputs)
+    process.stdout.write = jest.fn(storeLog)
+    GetResults.logTestFailed(url)
+    expect(outputData).toEqual(
+      expect.stringContaining(
+        `\n${chalk.blue('Test failed - retrying')} ${url}`
+      )
+    )
+  })
+
+  test('Logs out logAllTestsFailed', () => {
+    let outputData = ''
+    const storeLog = inputs => (outputData += inputs)
+    process.stdout.write = jest.fn(storeLog)
+    GetResults.logAllTestsFailed(url)
+    expect(outputData).toEqual(
+      expect.stringContaining(chalk.red(`Testing ${url} failed`))
+    )
+  })
 })
 
 describe('I can get metrics from Lighthouse (async tests)', async () => {
