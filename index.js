@@ -2,7 +2,7 @@ const argv = require('minimist')(process.argv.slice(2))
 const Input = require('./src/input')
 const GetResults = require('./src/getResults')
 const FormatResults = require('./src/formatResults')
-const { exportJSON, exportXLSX } = require('./src/exportResults')
+const { exportXLSX } = require('./src/exportResults')
 
 const handleError = error => {
   console.log(error)
@@ -17,8 +17,8 @@ const init = async () => {
   const results = []
   for (let url of urls) {
     const getResultsInstance = new GetResults({ url })
-    await getResultsInstance.getLightHouseInstance()
-    results.push(getResultsInstance.getResults())
+    await getResultsInstance.getLightHouseInstances()
+    results.push(getResultsInstance.getAverageResults())
   }
   // Format results into CLI table + XLSX string
   const formatResultsInstance = new FormatResults(results)
