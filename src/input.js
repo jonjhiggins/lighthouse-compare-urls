@@ -11,8 +11,10 @@ module.exports = class Input {
   constructor(argv) {
     try {
       const urls = argv.urls.split(',')
+      const jsonExport = argv.jsonExport || false
       return {
-        urls
+        urls,
+        jsonExport
       }
     } catch (e) {
       throw new Error(errorMessages.input.noURLs)
