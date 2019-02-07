@@ -22,7 +22,7 @@ module.exports = class GetResults {
     }
 
     this.opts = {
-      chromeFlags: ['--show-paint-rects'],
+      chromeFlags: ['--show-paint-rects', '--headless'],
       onlyCategories: ['performance'],
       output: 'html'
     }
