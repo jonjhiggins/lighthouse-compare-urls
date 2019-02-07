@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "cli-table": "^0.3.1",
+    "filenamify": "^2.1.0",
     "lighthouse": "^4.0.0",
     "node-excel-export": "^1.4.4"
   }

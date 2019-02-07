@@ -16,6 +16,11 @@ Results are exported as XLSX file in `results` directory.
 
 - `npm start -- --urls "[URL 1],[URL 2]"`, e.g. `npm start -- --urls "https://google.com.au,https://google.com"`
 
+### Options:
+
+- `--urls "[URL 1],[URL 2]"` (required) supply URLs to be tests
+- `--jsonExport` export all Lighthouse results (large file) to `/results`
+
 ## Test
 
 - `npm test` and `npm run test:watch`. Tests are written in [Jest](https://jestjs.io).

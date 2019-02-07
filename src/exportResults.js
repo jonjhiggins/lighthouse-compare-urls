@@ -1,8 +1,9 @@
 const fs = require('fs')
 const path = require('path')
-const outputDir = 'results'
+const filenamify = require('filenamify')
 const errorMessages = require('./errorMessages')
 
+const outputDir = 'results'
 /**
  * Write XLS string to file
  * @param {string} fileName
@@ -33,8 +34,10 @@ const writeFile = async (fileName, contents, options) => {
       return reject(new Error(errorMessages.exportResults.missingFile))
     }
 
+    const fileNameSafe = filenamify(fileName);
+
     fs.writeFile(
-      path.resolve(`${outputDir}/${fileName}`),
+      path.resolve(`${outputDir}/${fileNameSafe}`),
       contents,
       options,
       err => {
