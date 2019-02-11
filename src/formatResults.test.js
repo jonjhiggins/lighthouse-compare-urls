@@ -26,6 +26,19 @@ const results = [
   }
 ]
 
+const differenceItem = {
+  tests: {
+    performanceScore: 0.36,
+    firstContentfulPaint: -0.6,
+    firstMeaningfulPaint: -0.6,
+    firstCPUIdle: -1.21,
+    totalByteWeight: -4
+  },
+  info: { url: 'Difference' }
+}
+
+const differenceResults = [...results, differenceItem]
+
 const tableLabels = [
   results[0].info.url,
   results[1].info.url,
@@ -48,10 +61,27 @@ describe('I can get results formatted', () => {
     }
   })
 
+  test('adds difference item', () => {
+    const resultsWithDifference = FormatResults.getResultsWithDifference(
+      results
+    )
+    const differenceItem = resultsWithDifference[2]
+    expect(differenceItem.info.url).toMatch('Difference')
+    expect(differenceItem.tests.performanceScore).toBe(
+      results[1].tests.performanceScore - results[0].tests.performanceScore
+    )
+
+    const testKeys = Object.keys(results[0].tests)
+    testKeys.forEach(key => {
+      expect(differenceItem.tests[key]).toBe(
+        results[1].tests[key] - results[0].tests[key]
+      )
+    })
+  })
+
   test('formats results object for CLI Table', () => {
     const formattedResultsObj = FormatResults.formatDataForCLITable(
-      results[0],
-      results[1]
+      differenceResults
     )
     expect(formattedResultsObj[0][0]).toMatch('')
     expect(formattedResultsObj[0][1]).toBe(results[0].info.url)
@@ -59,6 +89,13 @@ describe('I can get results formatted', () => {
     expect(formattedResultsObj[1][0]).toMatch('Performance Score')
     expect(formattedResultsObj[1][1]).toBe(results[0].tests.performanceScore)
     expect(formattedResultsObj[1][2]).toBe(results[1].tests.performanceScore)
+  })
+
+  test('get difference formatted correctly', () => {
+    const test1 = 1.404
+    const test2 = 3.21
+    const difference = FormatResults.getDifference(test1, test2)
+    expect(difference).toBe(1.81)
   })
 
   test('formats results object for XLSX export', () => {
@@ -73,10 +110,19 @@ describe('I can get results formatted', () => {
 
   test('formats object specification for XLSX export', () => {
     const specification = FormatResults.getSpecificationForXLSX(results)
+    const cellStyle1 = specification.url.cellStyle('', {
+      url: 'https://google.com.au'
+    })
+    const cellStyle2 = specification.url.cellStyle('', {
+      url: 'Difference'
+    })
     expect(specification.url.displayName).toMatch('URL')
     expect(specification.performanceScore.displayName).toMatch(
       'Performance Score'
     )
+    // Check difference row is formatted bold
+    expect(cellStyle1).toEqual({ font: { bold: false } })
+    expect(cellStyle2).toEqual({ font: { bold: true } })
   })
 
   test('creates a CLI table from formatted object', () => {

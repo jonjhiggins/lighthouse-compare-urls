@@ -7,6 +7,16 @@ const styles = {
     font: {
       bold: true
     }
+  },
+  body: {
+    font: {
+      bold: false
+    }
+  },
+  footer: {
+    font: {
+      bold: true
+    }
   }
 }
 
@@ -24,7 +34,39 @@ module.exports = class FormatResults {
     if (!results || results.length !== 2) {
       throw new Error(errorMessages.formatResults.noResults)
     }
-    this.results = results
+    this.results = FormatResults.getResultsWithDifference(results)
+  }
+
+  /**
+   * Add a "difference" item to the results that compares
+   * the two URLs results for each test item
+   * @param {object[]} results
+   */
+  static getResultsWithDifference(results) {
+    const difference = {
+      tests: Object.keys(results[0].tests).reduce((accumulator, key) => {
+        accumulator[key] = FormatResults.getDifference(
+          results[0].tests[key],
+          results[1].tests[key]
+        )
+        return accumulator
+      }, {}),
+      info: {
+        url: 'Difference'
+      }
+    }
+    const resultsWithDiffererence = [...results, difference]
+    return resultsWithDiffererence
+  }
+
+  /**
+   * Get difference of two numbers, round to 2 decimal places
+   * @param {number} a
+   * @param {number} b
+   * @returns {number}
+   */
+  static getDifference(a, b) {
+    return Math.round((b - a) * 100) / 100
   }
 
   /**
@@ -33,24 +75,22 @@ module.exports = class FormatResults {
    * @returns {string}
    */
   getCLITable() {
-    const tableData = FormatResults.formatDataForCLITable(
-      this.results[0],
-      this.results[1]
-    )
+    const tableData = FormatResults.formatDataForCLITable(this.results)
     return FormatResults.createTables(tableData)
   }
 
   /**
    * Format the performance results into array for use in cli-table
-   * @param {object} results1
-   * @param {object} results2
+   * @param {object[]} differentResults
    * @returns {object[]}
    */
-  static formatDataForCLITable(results1, results2) {
-    const headings = ['', results1.info.url, results2.info.url]
-    const tableData = Object.keys(results1.tests).map(testKey => {
+  static formatDataForCLITable(differentResults) {
+    const getHeadings = differentResults.map(result => result.info.url)
+    const headings = ['', ...getHeadings]
+    const tableData = Object.keys(differentResults[0].tests).map(testKey => {
       const label = fields.find(field => field.value === testKey).label
-      return [label, results1.tests[testKey], results2.tests[testKey]]
+      const getTests = differentResults.map(result => result.tests[testKey])
+      return [label, ...getTests]
     })
     return [headings, ...tableData]
   }
@@ -81,7 +121,12 @@ module.exports = class FormatResults {
       obj[field.value] = {
         displayName: field.label, // <- Here you specify the column header
         width: field.width || 120,
-        headerStyle: styles.headerDark
+        headerStyle: styles.headerDark,
+        // Format difference row bold
+        cellStyle: function(value, row) {
+          const isDifference = row.url === 'Difference'
+          return isDifference ? styles.footer : styles.body
+        }
       }
     })
     return obj
