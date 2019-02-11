@@ -133,6 +133,10 @@ module.exports = class GetResults {
       numberOfTests,
       lightHouseInstance.lhr.categories.performance.score
     )
+    // Kill Chrome on last run
+    if (index + 1 === numberOfTests) {
+      this.killChromeInstance()
+    }
     return lightHouseInstance
   }
 

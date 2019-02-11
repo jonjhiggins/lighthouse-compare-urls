@@ -10,7 +10,7 @@ module.exports = class Input {
    */
   constructor(argv) {
     try {
-      const urls = argv.urls.split(',')
+      const urls = Input.formatURLs(argv.urls.split(','))
       const jsonExport = argv.jsonExport || false
       return {
         urls,
@@ -19,5 +19,22 @@ module.exports = class Input {
     } catch (e) {
       throw new Error(errorMessages.input.noURLs)
     }
+  }
+
+  /**
+   * Take a flat array of URLs and return as an array
+   * of URL pairs
+   * @param {string[]} urls
+   * @returns {string[][]}
+   */
+  static formatURLs(urls) {
+    return urls.reduce((accumulator, url, index) => {
+      const parentIndex = Math.floor(index / 2)
+      if (!accumulator[parentIndex]) {
+        accumulator[parentIndex] = []
+      }
+      accumulator[parentIndex].push(url)
+      return accumulator
+    }, [])
   }
 }
