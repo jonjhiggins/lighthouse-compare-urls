@@ -16,7 +16,8 @@ const styles = {
   footer: {
     font: {
       bold: true
-    }
+    },
+    numFmt: '+0;-0;0'
   }
 }
 
@@ -89,7 +90,13 @@ module.exports = class FormatResults {
     const headings = ['', ...getHeadings]
     const tableData = Object.keys(differentResults[0].tests).map(testKey => {
       const label = fields.find(field => field.value === testKey).label
-      const getTests = differentResults.map(result => result.tests[testKey])
+      const getTests = differentResults.map(result => {
+        const isDifference = result.info.url === 'Difference'
+        const value = result.tests[testKey]
+        const numberPrefix = value > 0 ? '+' : ''
+        // Add + / - sign prefix for difference row values
+        return isDifference ? `${numberPrefix}${value}` : value
+      })
       return [label, ...getTests]
     })
     return [headings, ...tableData]

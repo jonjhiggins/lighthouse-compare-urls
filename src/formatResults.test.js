@@ -89,6 +89,9 @@ describe('I can get results formatted', () => {
     expect(formattedResultsObj[1][0]).toMatch('Performance Score')
     expect(formattedResultsObj[1][1]).toBe(results[0].tests.performanceScore)
     expect(formattedResultsObj[1][2]).toBe(results[1].tests.performanceScore)
+    expect(formattedResultsObj[1][3]).toMatch(
+      `+${results[1].tests.performanceScore - results[0].tests.performanceScore}`
+    )
   })
 
   test('get difference formatted correctly', () => {
@@ -122,7 +125,7 @@ describe('I can get results formatted', () => {
     )
     // Check difference row is formatted bold
     expect(cellStyle1).toEqual({ font: { bold: false } })
-    expect(cellStyle2).toEqual({ font: { bold: true } })
+    expect(cellStyle2).toEqual({ font: { bold: true }, numFmt: '+0;-0;0' })
   })
 
   test('creates a CLI table from formatted object', () => {
