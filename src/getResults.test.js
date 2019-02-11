@@ -12,15 +12,15 @@ const lighthouseResultObj = {
     }
   },
   audits: {
-    'first-contentful-paint': { score: 1111 },
-    'first-meaningful-paint': { score: 2222 },
-    'first-cpu-idle': { score: 3333 },
-    'total-byte-weight': { score: 999999 }
+    'first-contentful-paint': { rawValue: 1111 },
+    'first-meaningful-paint': { rawValue: 2222 },
+    'first-cpu-idle': { rawValue: 3333 },
+    'total-byte-weight': { rawValue: 999999 }
   }
 }
 const lighthouseResultObj2 = JSON.parse(JSON.stringify(lighthouseResultObj))
 lighthouseResultObj2.categories.performance.score = 0.3
-lighthouseResultObj2.audits['first-contentful-paint'].score = 400
+lighthouseResultObj2.audits['first-contentful-paint'].rawValue = 400
 const lighthouseResultsListFormatted = [
   {
     tests: {
@@ -84,16 +84,16 @@ describe('I can get metrics from Lighthouse (sync tests)', () => {
       lighthouseResults[1].categories.performance.score
     )
     expect(resultsInstance.results[0].tests.firstContentfulPaint).toBe(
-      lighthouseResults[0].audits['first-contentful-paint'].score
+      lighthouseResults[0].audits['first-contentful-paint'].rawValue
     )
     expect(resultsInstance.results[1].tests.firstMeaningfulPaint).toBe(
-      lighthouseResults[0].audits['first-meaningful-paint'].score
+      lighthouseResults[0].audits['first-meaningful-paint'].rawValue
     )
     expect(resultsInstance.results[0].tests.firstCPUIdle).toBe(
-      lighthouseResults[0].audits['first-cpu-idle'].score
+      lighthouseResults[0].audits['first-cpu-idle'].rawValue
     )
     expect(resultsInstance.results[0].tests.totalByteWeight).toBe(
-      lighthouseResults[0].audits['total-byte-weight'].score
+      lighthouseResults[0].audits['total-byte-weight'].rawValue
     )
   })
 
@@ -115,13 +115,13 @@ describe('I can get metrics from Lighthouse (sync tests)', () => {
     expect(resultsInstance.resultsAverages.tests.performanceScore).toBe(0.43)
     expect(resultsInstance.resultsAverages.tests.firstContentfulPaint).toBe(874)
     expect(resultsInstance.resultsAverages.tests.firstMeaningfulPaint).toBe(
-      lighthouseResults[0].audits['first-meaningful-paint'].score
+      lighthouseResults[0].audits['first-meaningful-paint'].rawValue
     )
     expect(resultsInstance.resultsAverages.tests.firstCPUIdle).toBe(
-      lighthouseResults[0].audits['first-cpu-idle'].score
+      lighthouseResults[0].audits['first-cpu-idle'].rawValue
     )
     expect(resultsInstance.resultsAverages.tests.totalByteWeight).toBe(
-      lighthouseResults[0].audits['total-byte-weight'].score
+      lighthouseResults[0].audits['total-byte-weight'].rawValue
     )
   })
 

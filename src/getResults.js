@@ -154,11 +154,12 @@ module.exports = class GetResults {
       tests: {
         performanceScore: lighthouseResultObj.categories.performance.score,
         firstContentfulPaint:
-          lighthouseResultObj.audits['first-contentful-paint'].score,
+          lighthouseResultObj.audits['first-contentful-paint'].rawValue,
         firstMeaningfulPaint:
-          lighthouseResultObj.audits['first-meaningful-paint'].score,
-        firstCPUIdle: lighthouseResultObj.audits['first-cpu-idle'].score,
-        totalByteWeight: lighthouseResultObj.audits['total-byte-weight'].score
+          lighthouseResultObj.audits['first-meaningful-paint'].rawValue,
+        firstCPUIdle: lighthouseResultObj.audits['first-cpu-idle'].rawValue,
+        totalByteWeight:
+          lighthouseResultObj.audits['total-byte-weight'].rawValue
       },
       info: {
         url: lighthouseResultObj.requestedUrl
