@@ -6,20 +6,35 @@ const errorMessages = require('./errorMessages')
 const outputDir = 'results'
 /**
  * Write XLS string to file
- * @param {string} fileName
+ * @param {string} testName
  * @param {string} contents
  */
-const exportXLSX = (fileName, contents) => {
+const exportXLSX = (testName, contents) => {
+  const fileName = getFileName(testName, 'xlsx')
   return writeFile(fileName, contents, { encoding: 'binary' })
 }
 
 /**
  * Write object to a JSON file
- * @param {string} fileName
+ * @param {string} testName
  * @param {object} contents
  */
-const exportJSON = (fileName, contents) => {
+const exportJSON = (testName, contents) => {
+  const fileName = getFileName(testName, 'json')
   return writeFile(fileName, JSON.stringify(contents))
+}
+
+/**
+ * Create a unique filename based on test name
+ * and current date
+ * @param {string} testName
+ * @param {string} ext file extension (without dot)
+ * @returns {string}
+ */
+const getFileName = (testName, ext) => {
+  const url = testName.replace(/(http)(|s)(:\/\/)/g, '')
+  const date = new Date().toISOString()
+  return filenamify(`${url}-${date}.${ext}`)
 }
 
 /**
@@ -34,7 +49,7 @@ const writeFile = async (fileName, contents, options) => {
       return reject(new Error(errorMessages.exportResults.missingFile))
     }
 
-    const fileNameSafe = filenamify(fileName);
+    const fileNameSafe = filenamify(fileName)
 
     fs.writeFile(
       path.resolve(`${outputDir}/${fileNameSafe}`),
@@ -54,5 +69,6 @@ const writeFile = async (fileName, contents, options) => {
 module.exports = {
   exportXLSX,
   exportJSON,
-  writeFile
+  writeFile,
+  getFileName
 }

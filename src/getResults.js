@@ -133,6 +133,7 @@ module.exports = class GetResults {
       numberOfTests,
       lightHouseInstance.lhr.categories.performance.score
     )
+    this.killChromeInstance()
     return lightHouseInstance
   }
 
