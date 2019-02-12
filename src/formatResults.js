@@ -1,6 +1,7 @@
 const errorMessages = require('./errorMessages')
 const Table = require('cli-table')
 const excel = require('node-excel-export')
+const chalk = require('chalk')
 
 const styles = {
   headerDark: {
@@ -23,11 +24,23 @@ const styles = {
 
 const fields = [
   { label: 'URL', value: 'url', width: 200 },
-  { label: 'Performance Score', value: 'performanceScore' },
-  { label: 'First Contentful Paint', value: 'firstContentfulPaint' },
-  { label: 'First Meaningful Paint', value: 'firstMeaningfulPaint' },
-  { label: 'First CPU Idle', value: 'firstCPUIdle' },
-  { label: 'Total Byte Weight', value: 'totalByteWeight' }
+  {
+    label: 'Performance Score',
+    value: 'performanceScore',
+    lessIsGood: false
+  },
+  {
+    label: 'First Contentful Paint',
+    value: 'firstContentfulPaint',
+    lessIsGood: true
+  },
+  {
+    label: 'First Meaningful Paint',
+    value: 'firstMeaningfulPaint',
+    lessIsGood: true
+  },
+  { label: 'First CPU Idle', value: 'firstCPUIdle', lessIsGood: true },
+  { label: 'Total Byte Weight', value: 'totalByteWeight', lessIsGood: true }
 ]
 
 module.exports = class FormatResults {
@@ -82,24 +95,51 @@ module.exports = class FormatResults {
 
   /**
    * Format the performance results into array for use in cli-table
-   * @param {object[]} differentResults
+   * @param {object[]} differenceResults
    * @returns {object[]}
    */
-  static formatDataForCLITable(differentResults) {
-    const getHeadings = differentResults.map(result => result.info.url)
+  static formatDataForCLITable(differenceResults) {
+    const getHeadings = differenceResults.map(result => result.info.url)
     const headings = ['', ...getHeadings]
-    const tableData = Object.keys(differentResults[0].tests).map(testKey => {
-      const label = fields.find(field => field.value === testKey).label
-      const getTests = differentResults.map(result => {
-        const isDifference = result.info.url === 'Difference'
-        const value = result.tests[testKey]
-        const numberPrefix = value > 0 ? '+' : ''
-        // Add + / - sign prefix for difference row values
-        return isDifference ? `${numberPrefix}${value}` : value
-      })
-      return [label, ...getTests]
-    })
+    const testKeys = Object.keys(differenceResults[0].tests)
+    const tableData = testKeys.map(
+      FormatResults.formatTestDataForCLITable.bind(null, differenceResults)
+    )
     return [headings, ...tableData]
+  }
+
+  /**
+   * Reformat a testKey from differenceResults (e.g. performanceScore)
+   * @param {object[]} differenceResults
+   * @param {string} testKey
+   * @returns {array} in format [ testKey, value1, value2, difference ]
+   */
+  static formatTestDataForCLITable(differenceResults, testKey) {
+    const field = fields.find(field => field.value === testKey)
+    const { label, lessIsGood } = field
+    const getTests = differenceResults.map(result => {
+      const isDifference = result.info.url === 'Difference'
+      const value = result.tests[testKey]
+      const numberPrefix = value > 0 ? '+' : ''
+      const rating = FormatResults.getRating(lessIsGood, value)
+      // Add + / - sign prefix for difference row values
+      return isDifference ? `${numberPrefix}${value} ${rating}` : value
+    })
+    return [label, ...getTests]
+  }
+
+  /**
+   * Indicate whether a difference score is good or bad
+   * using coloured icons
+   * @param {boolean} lessIsGood
+   * @param {number} value
+   * @returns {string}
+   */
+  static getRating(lessIsGood, value) {
+    // Not sure if table formatting should be here...
+    const goodRating = (lessIsGood && value < 0) || (!lessIsGood && value > 0)
+    const rating = goodRating ? chalk.green('✓') : chalk.red('✕')
+    return value === 0 ? '' : rating
   }
 
   /**

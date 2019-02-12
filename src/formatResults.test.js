@@ -1,5 +1,6 @@
 const FormatResults = require('./formatResults')
 const errorMessages = require('./errorMessages')
+const chalk = require('chalk')
 
 /* globals test, expect, describe */
 
@@ -10,7 +11,7 @@ const results = [
       firstContentfulPaint: 1.5,
       firstMeaningfulPaint: 1.5,
       firstCPUIdle: 2,
-      totalByteWeight: 5
+      totalByteWeight: 1
     },
     info: { url: 'https://google.com.au/' }
   },
@@ -20,7 +21,7 @@ const results = [
       firstContentfulPaint: 0.9,
       firstMeaningfulPaint: 0.9,
       firstCPUIdle: 0.79,
-      totalByteWeight: 1
+      totalByteWeight: 5
     },
     info: { url: 'https://google.com/' }
   }
@@ -32,7 +33,7 @@ const differenceItem = {
     firstContentfulPaint: -0.6,
     firstMeaningfulPaint: -0.6,
     firstCPUIdle: -1.21,
-    totalByteWeight: -4
+    totalByteWeight: 4
   },
   info: { url: 'Difference' }
 }
@@ -90,7 +91,8 @@ describe('I can get results formatted', () => {
     expect(formattedResultsObj[1][1]).toBe(results[0].tests.performanceScore)
     expect(formattedResultsObj[1][2]).toBe(results[1].tests.performanceScore)
     expect(formattedResultsObj[1][3]).toMatch(
-      `+${results[1].tests.performanceScore - results[0].tests.performanceScore}`
+      `+${results[1].tests.performanceScore -
+        results[0].tests.performanceScore}`
     )
   })
 
@@ -141,6 +143,57 @@ describe('I can get results formatted', () => {
 
     tableLabels.forEach(label => {
       expect(table).toEqual(expect.stringContaining(label))
+    })
+  })
+
+  test('formatTestDataForCLITable', () => {
+    const testKeys = Object.keys(differenceResults[0].tests)
+    const testData = FormatResults.formatTestDataForCLITable(
+      differenceResults,
+      testKeys[0]
+    )
+    const testData2 = FormatResults.formatTestDataForCLITable(
+      differenceResults,
+      testKeys[4]
+    )
+    expect(testData[0]).toMatch('Performance Score')
+    expect(testData[1]).toEqual(0.5)
+    expect(testData2[0]).toMatch('Total Byte Weight')
+    expect(testData2[1]).toEqual(1)
+  })
+
+  test('returns a coloured icon from value', () => {
+    const ratings = {
+      good: {
+        tests: [
+          FormatResults.getRating(true, -1),
+          FormatResults.getRating(false, 5)
+        ],
+        icon: chalk.green('✓')
+      },
+
+      neutral: {
+        tests: [
+          FormatResults.getRating(true, 0),
+          FormatResults.getRating(false, 0)
+        ],
+        icon: ''
+      },
+      bad: {
+        tests: [
+          FormatResults.getRating(true, 5),
+          FormatResults.getRating(false, -1)
+        ],
+        icon: chalk.red('✕')
+      }
+    }
+    const ratingsKeys = Object.keys(ratings)
+    ratingsKeys.forEach(key => {
+      const icon = ratings[key].icon
+      const tests = ratings[key].tests
+      tests.forEach(test => {
+        expect(test).toMatch(icon)
+      })
     })
   })
 
