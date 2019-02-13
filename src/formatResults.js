@@ -19,7 +19,26 @@ const styles = {
       bold: true
     },
     numFmt: '+0;-0;0'
+  },
+  good: {
+    fill: {
+      fgColor: {
+        rgb: 'FFc8f7c5'
+      }
+    }
+  },
+  bad: {
+    fill: {
+      fgColor: {
+        rgb: 'FFec644b'
+      }
+    }
   }
+}
+
+const icons = {
+  good: '✓',
+  bad: '✕'
 }
 
 const fields = [
@@ -121,7 +140,12 @@ module.exports = class FormatResults {
       const isDifference = result.info.url === 'Difference'
       const value = result.tests[testKey]
       const numberPrefix = value > 0 ? '+' : ''
-      const rating = FormatResults.getRating(lessIsGood, value)
+      const { text: ratingText, colour } = FormatResults.getRating(
+        lessIsGood,
+        value
+      )
+      const rating =
+        colour === 'green' ? chalk.green(ratingText) : chalk.red(ratingText)
       // Add + / - sign prefix for difference row values
       return isDifference ? `${numberPrefix}${value} ${rating}` : value
     })
@@ -138,8 +162,11 @@ module.exports = class FormatResults {
   static getRating(lessIsGood, value) {
     // Not sure if table formatting should be here...
     const goodRating = (lessIsGood && value < 0) || (!lessIsGood && value > 0)
-    const rating = goodRating ? chalk.green('✓') : chalk.red('✕')
-    return value === 0 ? '' : rating
+    const ratingText = goodRating ? icons.good : icons.bad
+    const ratingColour = goodRating ? 'green' : 'red'
+    return value === 0
+      ? { text: '', colour: '' }
+      : { text: ratingText, colour: ratingColour }
   }
 
   /**
@@ -149,10 +176,23 @@ module.exports = class FormatResults {
    * @returns {object[]}
    */
   static formatDataForXLSX(results) {
-    return results.map(({ info: { url }, tests }) => ({
-      url,
-      ...tests
-    }))
+    return results.map(({ info: { url }, tests }) => {
+      const isDifference = url === 'Difference'
+      const testsFormatted = isDifference ? Object.assign({}, tests, {}) : tests
+
+      if (isDifference) {
+        const testKeys = Object.keys(testsFormatted)
+        testKeys.forEach(testKey => {
+          const value = testsFormatted[testKey]
+          const field = fields.find(field => field.value === testKey)
+          const { lessIsGood } = field
+          const numberPrefix = value > 0 ? '+' : ''
+          const rating = FormatResults.getRating(lessIsGood, value).text
+          testsFormatted[testKey] = `${numberPrefix}${value} ${rating}`
+        })
+      }
+      return { url, ...testsFormatted }
+    })
   }
 
   /**
@@ -170,13 +210,35 @@ module.exports = class FormatResults {
         width: field.width || 120,
         headerStyle: styles.headerDark,
         // Format difference row bold
-        cellStyle: function(value, row) {
-          const isDifference = row.url === 'Difference'
-          return isDifference ? styles.footer : styles.body
-        }
+        cellStyle: FormatResults.styleXLSXCell
       }
     })
     return obj
+  }
+
+  /**
+   * Style / format a cell in Excel file depending on
+   * its contents or row
+   * @param {string|number} value
+   * @param {object} row
+   */
+  static styleXLSXCell(value, row) {
+    const isDifference = row.url === 'Difference'
+    const isGood = isDifference && value.indexOf(icons.good) > -1
+    const isBad = isDifference && value.indexOf(icons.bad) > -1
+    const footerStyles = FormatResults.getFooterStyles(isGood, isBad)
+    return isDifference ? footerStyles : styles.body
+  }
+
+  /**
+   * Check which footer styles to use
+   * @param {boolean} isGood
+   * @param {boolean} isBad
+   */
+  static getFooterStyles(isGood, isBad) {
+    const isGoodOrBad = isGood || isBad
+    const goodOrBadStyle = isGood ? styles.good : styles.bad
+    return isGoodOrBad ? goodOrBadStyle : styles.footer
   }
 
   /**

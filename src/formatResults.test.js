@@ -1,8 +1,12 @@
 const FormatResults = require('./formatResults')
 const errorMessages = require('./errorMessages')
-const chalk = require('chalk')
 
-/* globals test, expect, describe */
+const icons = {
+  good: '✓',
+  bad: '✕'
+}
+
+/* globals test, expect, describe, jest */
 
 const results = [
   {
@@ -104,30 +108,56 @@ describe('I can get results formatted', () => {
   })
 
   test('formats results object for XLSX export', () => {
-    const formattedResultsObj = FormatResults.formatDataForXLSX(results)
+    const formattedResultsObj = FormatResults.formatDataForXLSX(
+      differenceResults
+    )
     expect(formattedResultsObj[0].url).toMatch(results[0].info.url)
     expect(formattedResultsObj[1].url).toMatch(results[1].info.url)
     Object.keys(results[0].tests).forEach(testKey => {
       expect(formattedResultsObj[0][testKey]).toBe(results[0].tests[testKey])
       expect(formattedResultsObj[1][testKey]).toBe(results[1].tests[testKey])
     })
+    expect(formattedResultsObj[2].performanceScore).toMatch(
+      `+0.36 ${icons.good}`
+    )
   })
 
   test('formats object specification for XLSX export', () => {
     const specification = FormatResults.getSpecificationForXLSX(results)
-    const cellStyle1 = specification.url.cellStyle('', {
-      url: 'https://google.com.au'
-    })
-    const cellStyle2 = specification.url.cellStyle('', {
-      url: 'Difference'
-    })
+
     expect(specification.url.displayName).toMatch('URL')
     expect(specification.performanceScore.displayName).toMatch(
       'Performance Score'
     )
+  })
+
+  test('formats XLSX cells correctly', () => {
+    const getFooterStyles = jest.spyOn(FormatResults, 'getFooterStyles')
+    const cellStyleBody = FormatResults.styleXLSXCell('', {
+      url: 'https://google.com.au'
+    })
+    expect(getFooterStyles).toHaveBeenCalledWith(false, false)
+    const cellStyleFooter = FormatResults.styleXLSXCell('', {
+      url: 'Difference'
+    })
+    expect(getFooterStyles).toHaveBeenCalledWith(false, false)
+    FormatResults.styleXLSXCell(`${icons.good}`, {
+      url: 'Difference'
+    })
+    expect(getFooterStyles).toHaveBeenCalledWith(true, false)
     // Check difference row is formatted bold
-    expect(cellStyle1).toEqual({ font: { bold: false } })
-    expect(cellStyle2).toEqual({ font: { bold: true }, numFmt: '+0;-0;0' })
+    expect(cellStyleBody).toEqual({ font: { bold: false } })
+    expect(cellStyleFooter).toEqual({
+      font: { bold: true },
+      numFmt: '+0;-0;0'
+    })
+  })
+
+  test('returns correct footer styles', () => {
+    const cellStyleGood = FormatResults.getFooterStyles(true, false)
+    const cellStyleBad = FormatResults.getFooterStyles(false, true)
+    expect(cellStyleGood.fill.fgColor.rgb).toMatch('FFc8f7c5')
+    expect(cellStyleBad.fill.fgColor.rgb).toMatch('FFec644b')
   })
 
   test('creates a CLI table from formatted object', () => {
@@ -169,7 +199,7 @@ describe('I can get results formatted', () => {
           FormatResults.getRating(true, -1),
           FormatResults.getRating(false, 5)
         ],
-        icon: chalk.green('✓')
+        icon: { text: '✓', colour: 'green' }
       },
 
       neutral: {
@@ -177,14 +207,14 @@ describe('I can get results formatted', () => {
           FormatResults.getRating(true, 0),
           FormatResults.getRating(false, 0)
         ],
-        icon: ''
+        icon: { text: '', colour: '' }
       },
       bad: {
         tests: [
           FormatResults.getRating(true, 5),
           FormatResults.getRating(false, -1)
         ],
-        icon: chalk.red('✕')
+        icon: { text: '✕', colour: 'red' }
       }
     }
     const ratingsKeys = Object.keys(ratings)
@@ -192,7 +222,7 @@ describe('I can get results formatted', () => {
       const icon = ratings[key].icon
       const tests = ratings[key].tests
       tests.forEach(test => {
-        expect(test).toMatch(icon)
+        expect(test).toEqual(icon)
       })
     })
   })
