@@ -7,6 +7,7 @@ const {
 const fs = require('fs')
 const errorMessages = require('./errorMessages')
 const path = require('path')
+const chalk = require('chalk')
 
 /* globals test, expect, describe, jest */
 
@@ -25,40 +26,50 @@ describe('I can export results', async () => {
     const testName = 'https://www.google.com.au'
     const contents = { test: true }
     const writeFile = {}
-    fs.writeFile = jest.fn((fileName, contents, options, callback) => {
-      callback()
-      writeFile.fileName = fileName
-      writeFile.contents = contents
-    })
+    const fsWriteFile = jest
+      .spyOn(fs, 'writeFile')
+      .mockImplementationOnce((fileName, contents, options, callback) => {
+        callback()
+        writeFile.fileName = fileName
+        writeFile.contents = contents
+      })
     await exportJSON(testName, contents)
-    expect(fs.writeFile).toHaveBeenCalled()
+    expect(fsWriteFile).toHaveBeenCalled()
     expect(writeFile.fileName).toEqual(
       expect.stringContaining('www.google.com.au')
     )
     expect(JSON.parse(writeFile.contents)).toEqual(contents)
+    fsWriteFile.mockRestore()
   })
 
   test('Export XLSX file', async () => {
     const testName = 'https://www.google.com.au'
     const contents = { test: true }
     const writeFile = {}
-    fs.writeFile = jest.fn((fileName, contents, options, callback) => {
-      callback()
-      writeFile.fileName = fileName
-      writeFile.contents = contents
-    })
+    const fsWriteFile = jest
+      .spyOn(fs, 'writeFile')
+      .mockImplementationOnce((fileName, contents, options, callback) => {
+        callback()
+        writeFile.fileName = fileName
+        writeFile.contents = contents
+      })
     await exportXLSX(testName, contents)
     // Mock fs.writeFile
-    expect(fs.writeFile).toHaveBeenCalled()
+    expect(fsWriteFile).toHaveBeenCalled()
     expect(writeFile.fileName).toEqual(
       expect.stringContaining('www.google.com.au')
     )
     const ext = path.parse(writeFile.fileName).ext
     expect(ext).toMatch('.xlsx')
     expect(writeFile.contents).toEqual(contents)
+    fsWriteFile.mockRestore()
   })
 
   test('Failed writeFile throw error', async () => {
+    const fsWriteFile = jest
+      .spyOn(fs, 'writeFile')
+      .mockImplementationOnce(() => {})
+
     try {
       await writeFile(null, '')
       expect(true).toBe(false) // force test fail if no error thrown
@@ -66,11 +77,21 @@ describe('I can export results', async () => {
       expect(e.message).toMatch(errorMessages.exportResults.missingFile)
     }
 
-    try {
-      await writeFile('//', '😀')
-      expect(true).toBe(false) // force test fail if no error thrown
-    } catch (e) {
-      expect(e.message).toBeDefined()
-    }
+    fsWriteFile.mockRestore()
+  })
+
+  test('On writing file the path is logged to console', () => {
+    let outputData = ''
+    const storeLog = inputs => (outputData += inputs)
+    console.log = jest.fn(storeLog)
+    const fileName = 'file-name.ext'
+    const fsWriteFile = jest
+      .spyOn(fs, 'writeFile')
+      .mockImplementationOnce(() => {})
+    writeFile(fileName, 'contents', () => {})
+    fsWriteFile.mockRestore()
+    expect(outputData).toEqual(
+      `${chalk.green('Writing file')} to results/${fileName}`
+    )
   })
 })
