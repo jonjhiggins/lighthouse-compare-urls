@@ -1,4 +1,5 @@
 const App = require('./app')
+const errorMessages = require('./errorMessages')
 
 /* globals test, expect, describe, jest */
 
@@ -64,6 +65,10 @@ describe('App', () => {
     App.outputCLITable(table)
     expect(outputData).toMatch(table)
   })
+})
+
+describe('App (async)', async () => {
+  const app = new App()
 
   test('handle error throws error and quits', async () => {
     let outputData = ''
@@ -74,10 +79,7 @@ describe('App', () => {
     expect(typeof outputData).toBe('string')
     expect(mockExit).toHaveBeenCalled()
   })
-})
 
-describe('App (async)', async () => {
-  const app = new App()
   test('init works', async () => {
     const getInputValues = () => ({
       urls: [
@@ -93,6 +95,8 @@ describe('App (async)', async () => {
     await app.init()
     expect(getResultsAndExport).toHaveBeenCalledTimes(2)
     expect(mockExit).toHaveBeenCalled()
+    getResultsAndExport.mockRestore()
+    mockExit.mockRestore()
   })
 
   test('can get results', async () => {
@@ -111,7 +115,35 @@ describe('App (async)', async () => {
       const results = await App.getResults(urls, false)
       expect(true).toBe(false) // force test fail if no error thrown
     } catch (e) {
-      expect(e.message).toBeDefined()
+      expect(e.message).toBe(errorMessages.app.getResultsNoArray)
     }
+  })
+
+  test('can get results and export', async () => {
+    const urlPair = ['https://google.com.au', 'https://google.com']
+    const jsonExport = false
+    const results = {}
+    const formattedResults = {
+      cliTable: 'cliTable',
+      excelBuffer: 'excelBuffer'
+    }
+    const getResults = jest
+      .spyOn(App, 'getResults')
+      .mockImplementation(async (urlPair, jsonExport) => {
+        return new Promise(resolve => resolve(results))
+      })
+    const getFormattedResults = jest
+      .spyOn(App, 'getFormattedResults')
+      .mockImplementation(() => formattedResults)
+    const outputCLITable = jest
+      .spyOn(App, 'outputCLITable')
+      .mockImplementation(() => formattedResults)
+    await App.getResultsAndExport(urlPair, jsonExport)
+    expect(await getResults).toHaveBeenCalledWith(urlPair, jsonExport)
+    expect(getFormattedResults).toHaveBeenCalledWith(results)
+    expect(outputCLITable).toHaveBeenCalledWith(formattedResults.cliTable)
+    getResults.mockRestore()
+    getFormattedResults.mockRestore()
+    outputCLITable.mockRestore()
   })
 })

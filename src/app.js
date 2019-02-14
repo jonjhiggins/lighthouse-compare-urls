@@ -2,6 +2,7 @@ const argv = require('minimist')(process.argv.slice(2))
 const Input = require('./input')
 const GetResults = require('./getResults')
 const FormatResults = require('./formatResults')
+const errorMessages = require('./errorMessages')
 const { exportXLSX, exportJSON } = require('./exportResults')
 
 module.exports = class App {
@@ -71,6 +72,9 @@ module.exports = class App {
    * @returns {object[]}
    */
   static async getResults(urlPair, jsonExport) {
+    if (urlPair.constructor !== Array) {
+      throw new Error(errorMessages.app.getResultsNoArray)
+    }
     // Can't use Array.map async here
     const results = []
     for (let url of urlPair) {
