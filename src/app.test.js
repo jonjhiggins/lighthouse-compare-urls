@@ -95,6 +95,8 @@ describe('App (async)', async () => {
     await app.init()
     expect(getResultsAndExport).toHaveBeenCalledTimes(2)
     expect(mockExit).toHaveBeenCalled()
+    getResultsAndExport.mockRestore()
+    mockExit.mockRestore()
   })
 
   test('can get results', async () => {
@@ -115,5 +117,33 @@ describe('App (async)', async () => {
     } catch (e) {
       expect(e.message).toBe(errorMessages.app.getResultsNoArray)
     }
+  })
+
+  test('can get results and export', async () => {
+    const urlPair = ['https://google.com.au', 'https://google.com']
+    const jsonExport = false
+    const results = {}
+    const formattedResults = {
+      cliTable: 'cliTable',
+      excelBuffer: 'excelBuffer'
+    }
+    const getResults = jest
+      .spyOn(App, 'getResults')
+      .mockImplementation(async (urlPair, jsonExport) => {
+        return new Promise(resolve => resolve(results))
+      })
+    const getFormattedResults = jest
+      .spyOn(App, 'getFormattedResults')
+      .mockImplementation(() => formattedResults)
+    const outputCLITable = jest
+      .spyOn(App, 'outputCLITable')
+      .mockImplementation(() => formattedResults)
+    await App.getResultsAndExport(urlPair, jsonExport)
+    expect(await getResults).toHaveBeenCalledWith(urlPair, jsonExport)
+    expect(getFormattedResults).toHaveBeenCalledWith(results)
+    expect(outputCLITable).toHaveBeenCalledWith(formattedResults.cliTable)
+    getResults.mockRestore()
+    getFormattedResults.mockRestore()
+    outputCLITable.mockRestore()
   })
 })
