@@ -1,6 +1,9 @@
 const chalk = require('chalk')
 
 module.exports = {
+  app: {
+    getResultsNoArray: 'getResults - urlPair must be an array'
+  },
   input: {
     noURLs: chalk.red(
       'No URLs supplied. Please use format: npm start -- --urls "https://google.com.au,https://google.co.uk"'

@@ -1,4 +1,5 @@
 const App = require('./app')
+const errorMessages = require('./errorMessages')
 
 /* globals test, expect, describe, jest */
 
@@ -64,6 +65,10 @@ describe('App', () => {
     App.outputCLITable(table)
     expect(outputData).toMatch(table)
   })
+})
+
+describe('App (async)', async () => {
+  const app = new App()
 
   test('handle error throws error and quits', async () => {
     let outputData = ''
@@ -74,10 +79,7 @@ describe('App', () => {
     expect(typeof outputData).toBe('string')
     expect(mockExit).toHaveBeenCalled()
   })
-})
 
-describe('App (async)', async () => {
-  const app = new App()
   test('init works', async () => {
     const getInputValues = () => ({
       urls: [
@@ -111,7 +113,7 @@ describe('App (async)', async () => {
       const results = await App.getResults(urls, false)
       expect(true).toBe(false) // force test fail if no error thrown
     } catch (e) {
-      expect(e.message).toBeDefined()
+      expect(e.message).toBe(errorMessages.app.getResultsNoArray)
     }
   })
 })
