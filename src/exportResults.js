@@ -35,7 +35,8 @@ const exportJSON = (testName, contents) => {
 const getFileName = (testName, ext) => {
   const url = testName.replace(/(http)(|s)(:\/\/)/g, '')
   const date = new Date().toISOString()
-  return filenamify(`${url}-${date}.${ext}`)
+  const filename = filenamify(`${url}-${date}`)
+  return `${filename}.${ext}`
 }
 
 /**
