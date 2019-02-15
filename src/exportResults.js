@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const filenamify = require('filenamify')
 const errorMessages = require('./errorMessages')
+const chalk = require('chalk')
 
 const outputDir = 'results'
 /**
@@ -50,19 +51,15 @@ const writeFile = async (fileName, contents, options) => {
     }
 
     const fileNameSafe = filenamify(fileName)
+    const fullPath = `${outputDir}/${fileNameSafe}`
 
-    fs.writeFile(
-      path.resolve(`${outputDir}/${fileNameSafe}`),
-      contents,
-      options,
-      err => {
-        if (err) {
-          return reject(err)
-        }
-
-        return resolve()
+    console.log(`${chalk.green('Writing file')} to ${fullPath}`)
+    fs.writeFile(path.resolve(fullPath), contents, options, err => {
+      if (err) {
+        return reject(err)
       }
-    )
+      return resolve()
+    })
   })
 }
 
