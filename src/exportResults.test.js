@@ -94,4 +94,13 @@ describe('I can export results', async () => {
       `${chalk.green('Writing file')} to results/${fileName}`
     )
   })
+
+  test('with long filenames', () => {
+    const longName =
+      'https://www.google.com.au/search?source=hp&ei=L1JmXIbaApWb9QPN54_wDA&q=mixcloud+transitions+real+lies&btnK=Google+Search&oq=mixcloud+transitions+real+lies&gs_l=psy-ab.3...4015.15427..15581...2.0..0.279.5204.0j30j3....2..0....1..gws-wiz.....0..0i131j0j0i10j0i22i30j0i13i30j0i8i13i30j33i160.uKszLZFBHm0'
+    const ext = '.ext'
+    const fileName = getFileName(longName, ext)
+    const parsedFilename = path.parse(fileName)
+    expect(parsedFilename.ext).toEqual(ext)
+  })
 })
