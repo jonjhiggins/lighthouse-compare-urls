@@ -33,7 +33,7 @@ const results = [
 
 const differenceItem = {
   tests: {
-    performanceScore: 0.36,
+    performanceScore: 36,
     firstContentfulPaint: -0.6,
     firstMeaningfulPaint: -0.6,
     firstCPUIdle: -1.21,
@@ -73,15 +73,33 @@ describe('I can get results formatted', () => {
     const differenceItem = resultsWithDifference[2]
     expect(differenceItem.info.url).toMatch('Difference')
     expect(differenceItem.tests.performanceScore).toBe(
-      results[1].tests.performanceScore - results[0].tests.performanceScore
+      (results[1].tests.performanceScore - results[0].tests.performanceScore) *
+        100
     )
 
     const testKeys = Object.keys(results[0].tests)
     testKeys.forEach(key => {
+      const multiply = key === 'performanceScore' ? 100 : 1
       expect(differenceItem.tests[key]).toBe(
-        results[1].tests[key] - results[0].tests[key]
+        (results[1].tests[key] - results[0].tests[key]) * multiply
       )
     })
+  })
+
+  test('formats numbers correctly (multiples)', () => {
+    const multipliedResults = FormatResults.multiplyResults(results)
+    expect(multipliedResults[0].tests.performanceScore).toBe(
+      results[0].tests.performanceScore * 100
+    )
+    expect(multipliedResults[1].tests.performanceScore).toBe(
+      results[1].tests.performanceScore * 100
+    )
+    expect(multipliedResults[0].tests.firstContentfulPaint).toBe(
+      results[0].tests.firstContentfulPaint
+    )
+    expect(multipliedResults[1].tests.firstContentfulPaint).toBe(
+      results[1].tests.firstContentfulPaint
+    )
   })
 
   test('formats results object for CLI Table', () => {
@@ -95,8 +113,8 @@ describe('I can get results formatted', () => {
     expect(formattedResultsObj[1][1]).toBe(results[0].tests.performanceScore)
     expect(formattedResultsObj[1][2]).toBe(results[1].tests.performanceScore)
     expect(formattedResultsObj[1][3]).toMatch(
-      `+${results[1].tests.performanceScore -
-        results[0].tests.performanceScore}`
+      `+${results[1].tests.performanceScore * 100 -
+        results[0].tests.performanceScore * 100}`
     )
   })
 
@@ -117,9 +135,7 @@ describe('I can get results formatted', () => {
       expect(formattedResultsObj[0][testKey]).toBe(results[0].tests[testKey])
       expect(formattedResultsObj[1][testKey]).toBe(results[1].tests[testKey])
     })
-    expect(formattedResultsObj[2].performanceScore).toMatch(
-      `+0.36 ${icons.good}`
-    )
+    expect(formattedResultsObj[2].performanceScore).toMatch(`+36 ${icons.good}`)
   })
 
   test('formats object specification for XLSX export', () => {

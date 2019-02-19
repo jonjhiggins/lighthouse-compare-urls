@@ -46,6 +46,7 @@ const fields = [
   {
     label: 'Performance Score',
     value: 'performanceScore',
+    multiply: 100,
     lessIsGood: false
   },
   {
@@ -76,20 +77,43 @@ module.exports = class FormatResults {
    * @param {object[]} results
    */
   static getResultsWithDifference(results) {
+    // Format any values as required (e.g. decimals to whole numbers)
+    const multipliedResults = FormatResults.multiplyResults(results)
     const difference = {
-      tests: Object.keys(results[0].tests).reduce((accumulator, key) => {
-        accumulator[key] = FormatResults.getDifference(
-          results[0].tests[key],
-          results[1].tests[key]
-        )
-        return accumulator
-      }, {}),
+      tests: Object.keys(multipliedResults[0].tests).reduce(
+        (accumulator, key) => {
+          accumulator[key] = FormatResults.getDifference(
+            multipliedResults[0].tests[key],
+            multipliedResults[1].tests[key]
+          )
+          return accumulator
+        },
+        {}
+      ),
       info: {
         url: 'Difference'
       }
     }
-    const resultsWithDiffererence = [...results, difference]
+    const resultsWithDiffererence = [...multipliedResults, difference]
     return resultsWithDiffererence
+  }
+
+  /**
+   * Multiply test values by values set in the "fields" object
+   * at top of file, e.g. for formatting decimal values as whole numbers
+   * @param {object[]} results
+   */
+  static multiplyResults(results) {
+    return results.map(({ tests, info }) => {
+      const newTests = Object.keys(tests).reduce((accumulator, key) => {
+        const field = fields.find(field => field.value === key)
+        const multiply = field && field.multiply ? field.multiply : 1
+        accumulator[key] = tests[key] * multiply
+        return accumulator
+      }, {})
+
+      return { tests: newTests, info }
+    })
   }
 
   /**
