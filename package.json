@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "demo": "node index.js --urls \"https://google.com.au,https://google.com\"",
-    "demo:multiple": "node index.js --urls \"https://google.com.au,https://google.com,https://www.honda.com.au/,https://aem-prod-64.honda.com.au\"",
-    "demo:multiple-long": "node index.js --urls \"https://www.honda.com.au/,https://aem-prod-64.honda.com.au,https://www.honda.com.au/cars.html,https://aem-prod-64.honda.com.au/cars.html,https://www.honda.com.au/cars/sedan.html,https://aem-prod-64.honda.com.au/cars/sedan.html,https://www.honda.com.au/cars/sedan/civic-sedan.html,https://aem-prod-64.honda.com.au/cars/sedan/civic-sedan.html,https://www.honda.com.au/offers.html,https://aem-prod-64.honda.com.au/offers.html,https://www.honda.com.au/media-centre/2018/7/honda-purchase-and-ownership-survey-winners-july.html,https://aem-prod-64.honda.com.au/media-centre/2018/7/honda-purchase-and-ownership-survey-winners-july.html,https://www.honda.com.au/media-centre.html,https://aem-prod-64.honda.com.au/media-centre.html\"",
+    "demo:multiple": "node index.js --urls \"https://google.com.au,https://google.com,https://www.google.co.uk/,https://www.google.fr\"",
     "start": "node index.js",
     "test": "jest",
     "test:ci": "jest --coverage && codecov",
