@@ -4,6 +4,8 @@
 
 Compare two URLs via Google's [Lighthouse](https://github.com/GoogleChrome/lighthouse) to check for performance differences.
 
+![Terminal running lighthouse-compare-urls](demo.gif)
+
 Useful for comparing an staging URL with changes against a current live site to see the performance impact of changes.
 
 Results are exported as XLSX file in `results` directory.
