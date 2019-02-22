@@ -9,20 +9,22 @@ const outputDir = 'results'
  * Write XLS string to file
  * @param {string} testName
  * @param {string} contents
+ * @param {boolean} cliMode
  */
-const exportXLSX = (testName, contents) => {
+const exportXLSX = (testName, contents, cliMode) => {
   const fileName = getFileName(testName, 'xlsx')
-  return writeFile(fileName, contents, { encoding: 'binary' })
+  return writeFile(fileName, contents, { encoding: 'binary' }, cliMode)
 }
 
 /**
  * Write object to a JSON file
  * @param {string} testName
  * @param {object} contents
+ * @param {boolean} cliMode
  */
-const exportJSON = (testName, contents) => {
+const exportJSON = (testName, contents, cliMode) => {
   const fileName = getFileName(testName, 'json')
-  return writeFile(fileName, JSON.stringify(contents))
+  return writeFile(fileName, JSON.stringify(contents), {}, cliMode)
 }
 
 /**
@@ -45,17 +47,20 @@ const getFileName = (testName, ext) => {
  * @param {string} contents
  * @param {object} options writeFile options obj
  */
-const writeFile = async (fileName, contents, options) => {
+const writeFile = async (fileName, contents, options, cliMode) => {
   return new Promise((resolve, reject) => {
     if (!fileName || !contents) {
       return reject(new Error(errorMessages.exportResults.missingFile))
     }
 
     const fileNameSafe = filenamify(fileName)
-    const fullPath = `${outputDir}/${fileNameSafe}`
+    const filePath = cliMode
+      ? `${fileNameSafe}`
+      : `${outputDir}/${fileNameSafe}`
+    const fullPath = path.resolve(filePath)
 
     console.log(`${chalk.green('Writing file')} to ${fullPath}`)
-    fs.writeFile(path.resolve(fullPath), contents, options, err => {
+    fs.writeFile(fullPath, contents, options, err => {
       if (err) {
         return reject(err)
       }

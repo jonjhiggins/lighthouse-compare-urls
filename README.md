@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master.svg?style=shield)](https://circleci.com/gh/jonjhiggins/lighthouse-compare-urls/tree/master) [![Codecov badge](https://codecov.io/gh/jonjhiggins/lighthouse-compare-urls/branch/master/graphs/badge.svg)](https://codecov.io/gh/jonjhiggins/lighthouse-compare-urls)
 
-Compare two URLs via Google's [Lighthouse](https://github.com/GoogleChrome/lighthouse) to check for performance differences.
+CLI tool to compare two URLs via Google's [Lighthouse](https://github.com/GoogleChrome/lighthouse) to check for performance differences.
 
 ![Terminal running lighthouse-compare-urls](demo.gif)
 
@@ -12,11 +12,12 @@ Results are exported as XLSX file in `results` directory.
 
 ## Install
 
-- `npm install`
+- `npm install lighthouse-compare-urls -g`
 
 ## Run
 
-- `npm start -- --urls "[URL 1],[URL 2]"`, e.g. `npm start -- --urls "https://google.com.au,https://google.com"`
+- `lighthouse-compare-urls --urls "[URL 1],[URL 2]"`, e.g. `lighthouse-compare-urls --urls "https://google.com.au,https://google.co.uk"`
+- If you supply more than two the URLs will be split up into multiple tests of two URLs, e.g. `lighthouse-compare-urls --urls "https://google.com.au,https://google.com,https://www.google.co.uk/,https://www.google.fr"`
 
 ### Options:
 
