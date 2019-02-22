@@ -10,6 +10,11 @@ describe('App', () => {
     expect(app).toBeDefined()
   })
 
+  test('Supports CLI mode', () => {
+    const appCLI = new App({ cliMode: true })
+    expect(appCLI.cliMode).toEqual(true)
+  })
+
   test('can get URL input values', () => {
     const argv = { _: [], urls: 'https://google.com.au,https://google.com' }
     const inputValues = App.getInputValues(argv)
@@ -122,6 +127,7 @@ describe('App (async)', async () => {
   test('can get results and export', async () => {
     const urlPair = ['https://google.com.au', 'https://google.com']
     const jsonExport = false
+    const cliMode = false
     const results = {}
     const formattedResults = {
       cliTable: 'cliTable',
@@ -138,8 +144,8 @@ describe('App (async)', async () => {
     const outputCLITable = jest
       .spyOn(App, 'outputCLITable')
       .mockImplementation(() => formattedResults)
-    await App.getResultsAndExport(urlPair, jsonExport)
-    expect(await getResults).toHaveBeenCalledWith(urlPair, jsonExport)
+    await App.getResultsAndExport(urlPair, jsonExport, cliMode)
+    expect(await getResults).toHaveBeenCalledWith(urlPair, jsonExport, cliMode)
     expect(getFormattedResults).toHaveBeenCalledWith(results)
     expect(outputCLITable).toHaveBeenCalledWith(formattedResults.cliTable)
     getResults.mockRestore()

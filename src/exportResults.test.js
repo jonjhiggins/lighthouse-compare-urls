@@ -85,14 +85,31 @@ describe('I can export results', async () => {
     const storeLog = inputs => (outputData += inputs)
     console.log = jest.fn(storeLog)
     const fileName = 'file-name.ext'
+    const filePath = path.resolve(`results/${fileName}`)
     const fsWriteFile = jest
       .spyOn(fs, 'writeFile')
       .mockImplementationOnce(() => {})
     writeFile(fileName, 'contents', () => {})
     fsWriteFile.mockRestore()
-    expect(outputData).toEqual(
-      `${chalk.green('Writing file')} to results/${fileName}`
-    )
+    expect(outputData).toEqual(`${chalk.green('Writing file')} to ${filePath}`)
+  })
+
+  test('On writing file the path changes in CLI mode', async () => {
+    const fileName = 'file-name.ext'
+    const filePath = path.resolve(`results/${fileName}`)
+    const filePathCLI = path.resolve(`${fileName}`)
+    const results = {}
+    const fsWriteFile = jest
+      .spyOn(fs, 'writeFile')
+      .mockImplementation((testFilePath, contents, options, callback) => {
+        results.filePath = testFilePath
+        return callback()
+      })
+    await writeFile(fileName, 'contents', {}, false)
+    expect(results.filePath).toEqual(filePath)
+    await writeFile(fileName, 'contents', {}, true)
+    expect(results.filePath).toEqual(filePathCLI)
+    fsWriteFile.mockRestore()
   })
 
   test('with long filenames', () => {

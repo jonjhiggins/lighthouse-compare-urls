@@ -7,6 +7,14 @@ const { exportXLSX, exportJSON } = require('./exportResults')
 
 module.exports = class App {
   /**
+   * Constructor
+   * @param {object} options
+   * @prop {boolean} cliMode is it being run from CLI. affects where files are output
+   */
+  constructor(options = {}) {
+    this.cliMode = !!options.cliMode
+  }
+  /**
    * Run everything:
    * - get URLs and CLI arguments
    * - get Lighthouse results
@@ -17,7 +25,7 @@ module.exports = class App {
       const { urls, jsonExport } = App.getInputValues(argv)
 
       for (let urlPairs of urls) {
-        await App.getResultsAndExport(urlPairs, jsonExport)
+        await App.getResultsAndExport(urlPairs, jsonExport, this.cliMode)
       }
 
       process.exit()
@@ -31,16 +39,17 @@ module.exports = class App {
    * that are to be compared and export results
    * @param {string[]} urlPair
    * @param {boolean} jsonExport
+   * @param {boolean} cliMode is it being run from CLI
    */
-  static async getResultsAndExport(urlPair, jsonExport) {
+  static async getResultsAndExport(urlPair, jsonExport, cliMode) {
     // Get Lighthouse results for each URL
-    const results = await App.getResults(urlPair, jsonExport)
+    const results = await App.getResults(urlPair, jsonExport, cliMode)
     // Format results into CLI table + XLSX string
     const formattedResults = App.getFormattedResults(results)
     const { cliTable, excelBuffer } = formattedResults
     App.outputCLITable(cliTable)
     // Export files
-    await exportXLSX(urlPair.join('-'), excelBuffer)
+    await exportXLSX(urlPair.join('-'), excelBuffer, cliMode)
   }
 
   /**
@@ -71,7 +80,7 @@ module.exports = class App {
    * @param {boolean} jsonExport
    * @returns {object[]}
    */
-  static async getResults(urlPair, jsonExport) {
+  static async getResults(urlPair, jsonExport, cliMode = false) {
     if (urlPair.constructor !== Array) {
       throw new Error(errorMessages.app.getResultsNoArray)
     }
@@ -82,7 +91,7 @@ module.exports = class App {
       const lighthouseInstances = await getResultsInstance.getLightHouseInstances()
       results.push(getResultsInstance.getAverageResults())
       if (jsonExport) {
-        await exportJSON(`${url}.json`, lighthouseInstances)
+        await exportJSON(`${url}.json`, lighthouseInstances, cliMode)
       }
     }
     return results

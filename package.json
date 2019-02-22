@@ -1,41 +1,44 @@
 {
-  "name": "lighthouse-compare-urls",
-  "version": "1.0.0",
-  "description": "Compare two URLs via Google's Lighthouse to check for performance differences.",
-  "main": "index.js",
-  "scripts": {
-    "demo": "node index.js --urls \"https://google.com.au,https://google.com\"",
-    "demo:multiple": "node index.js --urls \"https://google.com.au,https://google.com,https://www.google.co.uk/,https://www.google.fr\"",
-    "start": "node index.js",
-    "test": "jest",
-    "test:ci": "jest --coverage && codecov",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watchAll"
-  },
-  "author": "Jon Higgins <jon@jonhiggins.co.uk>",
-  "license": "MIT",
-  "devDependencies": {
-    "chalk": "^2.4.2",
-    "codecov": "^3.1.0",
-    "eslint": "^5.13.0",
-    "eslint-config-prettier": "^3.6.0",
-    "eslint-config-prettier-standard": "^2.0.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-prettier": "^3.0.1",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "jest": "^23.6.0",
-    "minimalist": "^1.0.0",
-    "prettier": "^1.16.4",
-    "prettier-eslint": "^8.8.2",
-    "prettier-eslint-cli": "^4.7.1"
-  },
-  "dependencies": {
-    "cli-table": "^0.3.1",
-    "filenamify": "^2.1.0",
-    "lighthouse": "^4.0.0",
-    "node-excel-export": "^1.4.4"
-  }
+    "name": "lighthouse-compare-urls",
+    "version": "1.0.2",
+    "description": "Compare two URLs via Google's Lighthouse to check for performance differences.",
+    "main": "index.js",
+    "bin": {
+        "lighthouse-compare-urls": "./cli.js"
+    },
+    "scripts": {
+        "demo": "node index.js --urls \"https://google.com.au,https://google.com\"",
+        "demo:multiple": "node index.js --urls \"https://google.com.au,https://google.com,https://www.google.co.uk/,https://www.google.fr\"",
+        "start": "node index.js",
+        "test": "jest",
+        "test:ci": "jest --coverage && codecov",
+        "test:coverage": "jest --coverage",
+        "test:watch": "jest --watchAll"
+    },
+    "author": "Jon Higgins <jon@jonhiggins.co.uk>",
+    "license": "MIT",
+    "devDependencies": {
+        "chalk": "^2.4.2",
+        "codecov": "^3.1.0",
+        "eslint": "^5.13.0",
+        "eslint-config-prettier": "^3.6.0",
+        "eslint-config-prettier-standard": "^2.0.0",
+        "eslint-config-standard": "^12.0.0",
+        "eslint-plugin-import": "^2.16.0",
+        "eslint-plugin-node": "^8.0.1",
+        "eslint-plugin-prettier": "^3.0.1",
+        "eslint-plugin-promise": "^4.0.1",
+        "eslint-plugin-standard": "^4.0.0",
+        "jest": "^23.6.0",
+        "minimalist": "^1.0.0",
+        "prettier": "^1.16.4",
+        "prettier-eslint": "^8.8.2",
+        "prettier-eslint-cli": "^4.7.1"
+    },
+    "dependencies": {
+        "cli-table": "^0.3.1",
+        "filenamify": "^2.1.0",
+        "lighthouse": "^4.0.0",
+        "node-excel-export": "^1.4.4"
+    }
 }
