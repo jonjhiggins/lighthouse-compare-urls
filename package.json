@@ -1,6 +1,6 @@
 {
     "name": "lighthouse-compare-urls",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Compare two URLs via Google's Lighthouse to check for performance differences.",
     "main": "index.js",
     "bin": {
